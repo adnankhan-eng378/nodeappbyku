@@ -3,13 +3,15 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "adnankhan48/nodeappbyku:latest"
+        GIT_REPO = "https://github.com/adnankhan-eng378/nodeappbyku"
+        GIT_BRANCH = "main"
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/adnankhan-eng378/nodeappbyku'
+                git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
             }
         }
 
@@ -43,12 +45,23 @@ pipeline {
             }
         }
 
-        stage('Clean Up') {
+        stage('Cleanup') {
             steps {
                 sh '''
                 docker logout
+                docker system prune -f
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Build & Push Successful!"
+        }
+
+        failure {
+            echo "❌ Pipeline Failed - check logs"
         }
     }
 }
