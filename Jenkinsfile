@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "adnankhan48/nodeappbyku:latest"
+        DOCKER_IMAGE = "adnankhan48/nodeappbyku"
         GIT_REPO = "https://github.com/adnankhan-eng378/nodeappbyku"
         GIT_BRANCH = "main"
     }
