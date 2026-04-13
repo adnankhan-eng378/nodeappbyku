@@ -6,7 +6,7 @@ pipeline {
         DOCKER_TAG = "latest"
         GIT_REPO = "https://github.com/adnankhan-eng378/nodeappbyku"
         GIT_BRANCH = "main"
-        KUBECONFIG_CRED = "kubeconfig"   // Jenkins credential ID
+        KUBECONFIG_CRED = "kubeconfig"
     }
 
     stages {
@@ -51,7 +51,6 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG')]) {
                     sh '''
-                    export KUBECONFIG=$KUBECONFIG
                     kubectl apply -f deployment.yaml
                     kubectl apply -f service.yaml
                     '''
@@ -61,11 +60,12 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                sh '''
-                export KUBECONFIG=$KUBECONFIG
-                kubectl get pods
-                kubectl get svc
-                '''
+                withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG')]) {
+                    sh '''
+                    kubectl get pods
+                    kubectl get svc
+                    '''
+                }
             }
         }
 
@@ -83,7 +83,6 @@ pipeline {
         success {
             echo "✅ Build, Push & Deployment Successful!"
         }
-
         failure {
             echo "❌ Pipeline Failed - check logs"
         }
