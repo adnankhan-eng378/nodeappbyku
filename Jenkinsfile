@@ -51,6 +51,7 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG')]) {
                     sh '''
+                    export KUBECONFIG=$KUBECONFIG
                     kubectl apply -f deployment.yaml
                     kubectl apply -f service.yaml
                     '''
@@ -61,6 +62,7 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh '''
+                export KUBECONFIG=$KUBECONFIG
                 kubectl get pods
                 kubectl get svc
                 '''
