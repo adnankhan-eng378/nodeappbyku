@@ -3,8 +3,10 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "adnankhan48/nodeappbyku"
+        DOCKER_TAG = "latest"
         GIT_REPO = "https://github.com/adnankhan-eng378/nodeappbyku"
         GIT_BRANCH = "main"
+        KUBECONFIG_CRED = "kubeconfig"   // Jenkins credential ID
     }
 
     stages {
@@ -32,7 +34,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                docker build -t $DOCKER_IMAGE .
+                docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
                 '''
             }
         }
@@ -40,7 +42,27 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 sh '''
-                docker push $DOCKER_IMAGE
+                docker push $DOCKER_IMAGE:$DOCKER_TAG
+                '''
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG')]) {
+                    sh '''
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
+                    '''
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh '''
+                kubectl get pods
+                kubectl get svc
                 '''
             }
         }
@@ -57,7 +79,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Build & Push Successful!"
+            echo "✅ Build, Push & Deployment Successful!"
         }
 
         failure {
