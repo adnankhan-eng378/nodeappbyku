@@ -6,7 +6,9 @@ pipeline {
         DOCKER_TAG = "latest"
         GIT_REPO = "https://github.com/adnankhan-eng378/nodeappbyku"
         GIT_BRANCH = "main"
-        KUBECONFIG_CRED = "kubeconfig"
+
+        // ✅ FIX: Jenkins uses direct kubeconfig path
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
@@ -49,23 +51,19 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG')]) {
-                    sh '''
-                    kubectl apply -f deployment.yaml
-                    kubectl apply -f service.yaml
-                    '''
-                }
+                sh '''
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
+                '''
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG')]) {
-                    sh '''
-                    kubectl get pods
-                    kubectl get svc
-                    '''
-                }
+                sh '''
+                kubectl get pods
+                kubectl get svc
+                '''
             }
         }
 
