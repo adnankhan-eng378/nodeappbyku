@@ -19,6 +19,13 @@ pipeline {
             }
         }
 
+        // ✅ NEW STAGE (only added, nothing changed)
+        stage('Test Kubernetes') {
+            steps {
+                sh 'kubectl get nodes'
+            }
+        }
+
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
